@@ -8,7 +8,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
-	"platzi.com/go/rest-ws/handlers"
+	handlers "platzi.com/go/rest-ws/handlers"
 	"platzi.com/go/rest-ws/middleware"
 	"platzi.com/go/rest-ws/server"
 )
@@ -48,4 +48,6 @@ func BindRoutes(s server.Server, r *mux.Router) {
 	r.HandleFunc("/posts/{id}", handlers.GetPostByIdHandler(s)).Methods(http.MethodGet)
 	r.HandleFunc("/posts/{id}", handlers.UpdatePostHandler(s)).Methods(http.MethodPut)
 	r.HandleFunc("/posts/{id}", handlers.DeletePostHandler(s)).Methods(http.MethodDelete)
+	r.HandleFunc("/posts", handlers.ListPostHandler(s)).Methods(http.MethodGet)
+	r.HandleFunc("/ws", s.Hub().HandleWebSocket)
 }
