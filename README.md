@@ -192,4 +192,55 @@ Contributing
 License
 - Example repository — check the course author policy for usage and distribution.
 
+**Changelog (recent commits)**
+
+The repository received several updates in the last commits. Quick summary:
+
+- feat: web socket upgrade (commit f47b725)
+	- Added real-time WebSocket support via a new `websocket` package (`websocket/hub.go`, `websocket/client.go`).
+	- New model `WebSocketMessage` (`models/message.go`) used to wrap broadcast messages.
+	- Server integration: the server now creates a `Hub` and exposes a `/ws` endpoint to accept WebSocket clients.
+	- When a new post is created (`POST /posts`) the server broadcasts a message of type `"Post_Created"` containing the created post as payload.
+	- Added `ListPost` support (repository and DB) and paginated listing handler.
+
+- chore: Dockerfile to production environment (commit c8cdf52)
+	- Introduced a multi-stage `Dockerfile` to build a static production binary and a minimal runner image.
+	- The Dockerfile sets up a builder stage that compiles the Go binary and a scratch-based runner stage.
+	- `go.mod` tidied up (dependency declarations adjusted).
+
+- refactor: tidy and fix on Dockerfile (commit 60feb23)
+	- Updated the root `Dockerfile` to use a newer Go version and improved Alpine package commands.
+	- `go.mod` Go version updated (now `go 1.24.0`).
+
+Notes & usage for the WebSocket feature
+
+- Endpoint: `GET /ws` — upgrade HTTP connection to WebSocket.
+- Message format: messages are JSON objects that follow the `WebSocketMessage` model:
+
+```json
+{
+	"type": "Post_Created",
+	"payload": {
+		"id": "<post-id>",
+		"post_content": "...",
+		"user_id": "...",
+		"created_at": "..."
+	}
+}
+```
+
+- Example (browser/Node.js):
+
+```js
+const ws = new WebSocket('ws://localhost:8080/ws');
+ws.onmessage = (evt) => {
+	const msg = JSON.parse(evt.data);
+	console.log('Received', msg.type, msg.payload);
+};
+```
+
+- When creating a post via the REST API (`POST /posts`) the server will broadcast a `Post_Created` message to all connected WebSocket clients.
+
+If you want, I can also add a short example client script (Node.js) or a Postman collection demonstrating the new flows.
+
 
